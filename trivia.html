@@ -19,8 +19,6 @@
         #explanation-text { font-size: 18px; color: #2c3e50; background: #eef2f7; padding: 15px; border-radius: 10px; margin-top: 15px; display: none; border-right: 5px solid #2980b9; line-height: 1.5; }
         .hidden { display: none; }
         #progress-info { font-size: 14px; color: #888; margin-bottom: 5px; }
-        
-        /* עיצוב הטיימר */
         #timer-container { width: 100%; height: 8px; background: #eee; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
         #timer-bar { width: 100%; height: 100%; background: #e74c3c; transition: width 0.1s linear; }
     </style>
@@ -31,7 +29,7 @@
     <div id="start-screen">
         <h1>מוכנים ללחץ?</h1>
         <p>יש לכם 7 שניות לכל שאלה!</p>
-        <button class="btn start-btn" onclick="startGame()">התחל את המשחק!</button>
+        <button class="btn start-btn" id="start-btn-id">התחל את המשחק!</button>
     </div>
 
     <div id="quiz-screen" class="hidden">
@@ -46,4 +44,130 @@
     <div id="result-screen" class="hidden">
         <h2 id="final-message"></h2>
         <div id="final-score" style="font-size: 28px; margin: 20px 0; font-weight: bold; color: #2c3e50;"></div>
-        <button class="btn start-
+        <button class="btn start-btn" onclick="location.reload()">נסה שוב</button>
+    </div>
+</div>
+
+<script>
+    const allQuestions = [
+        { q: "באיזו מדינה רצה לשחק אלון מזרחי אם לא ישחק באירופה?", a: ["אנגליה", "איטליה", "ספרד"], correct: "ספרד", note: "מתוך הציטוט האלמותי: 'אני רוצה לשחק או באירופה או בספרד'." },
+        { q: "מי מבצעת את השיר 'נערה חשמלית'?", a: ["דנה פרידר", "אגם רודברג", "רוני דואני"], correct: "דנה פרידר", note: "דנה פרידר ביצעה את השיר. והסיבה היחידה שאנחנו זוכרים את זה היא בזכות היום עיבוד של הגדוד!" },
+        { q: "מי מהזמרים הבאים נולד בישראל?", a: ["מייק ברנט", "יהודה פוליקר", "ברי סחרוף"], correct: "יהודה פוליקר", note: "יהודה פוליקר נולד בקרית חיים. ברי סחרוף נולד באיזמיר ומייק ברנט נולד בקפריסין." },
+        { q: "שם משפחתו של רון חולדאי הוא על שם:", a: ["עיר בטורקיה", "קיבוץ בישראל", "חווה חקלאית בפולין"], correct: "קיבוץ בישראל", note: "רון חולדאי קרוי על שם קיבוץ חולדה שבו נולד. אביו עוזר היה ממקימי הקיבוץ." },
+        { q: "מהו הישג השיא של גאורגיה בתחרות האירוויזיון?", a: ["מקום 16", "מקום 9", "מקום 4"], correct: "מקום 9", note: "גאורגיה הגיעה למקום ה-9 פעמיים ברציפות: בשנת 2010 ובשנת 2011." },
+        { q: "באיזה אלף-בית יש הכי פחות אותיות?", a: ["גאורגית", "יוונית", "רוסית"], correct: "יוונית", note: "באלף-בית היווני יש 24 אותיות, לעומת 33 ברוסית ובגאורגית המודרנית." },
+        { q: "מה מבין הבאים הוא יוצא דופן?", a: ["סקי", "קוטג'", "קממבר"], correct: "קממבר", note: "סקי וקוטג' הן גם שמות של גבינות וגם בעלות משמעות נוספת. קממבר היא רק גבינה." },
+        { q: "לפי הסרט 'צ'ארלי וחצי', מי מתעסק?", a: ["מיקו", "צ'ארלי", "ארליך"], correct: "מיקו", note: "בתגובה לשאלה אם הוא מתעסק עם ילדים, ששון משיב: 'מי מתעסק? זה מיקו!'" },
+        { q: "איזו מהערים הבאות לא מוכרת כיום כאיסטנבול?", a: ["קונסטנטינופול", "ביזנטיון", "גזיאנטפ"], correct: "גזיאנטפ", note: "גזיאנטפ היא עיר בדרום טורקיה. השאר הן שמותיה ההיסטוריים של איסטנבול." },
+        { q: "מי מהבאים הוא ספר של סופר ישראלי?", a: ["רומן בטייפי עם חכה", "רומן גורזיני", "רומן רוסי"], correct: "רומן רוסי", note: "רומן רוסי הוא ספר הביכורים המפורסם של מאיר שלו." },
+        { q: "מה מהבאים אינו מאכל גאורגי?", a: ["זסטפוני", "צ'ורצ'חלה", "חצ'פורי"], correct: "זסטפוני", note: "זסטפוני היא עיר גאורגית בת 24 אלף תושבים, לא מאכל." },
+        { q: "מי מהערים היא העיר התאומה של כותאיסי שבגאורגיה?", a: ["ביתר עילית", "אשקלון", "נס ציונה"], correct: "אשקלון", note: "אשקלון וכותאיסי חתומות על ברית ערים תאומות." },
+        { q: "מי מבין נמלי התעופה הבאים הוא יוצא דופן?", a: ["נמל התעופה אטאטורק", "נמל התעופה ג'ון פ. קנדי", "נמל התעופה בן גוריון"], correct: "נמל התעופה ג'ון פ. קנדי", note: "אטאטורק ובן גוריון קרויים על שם מייסדי המדינות שלהם. קנדי היה נשיא בלבד." },
+        { q: "מי מבין הבאים הוא יוצא דופן?", a: ["זבולון מושיאשווילי", "דובר קוסאשווילי", "גוצ'ה ציציאשווילי"], correct: "גוצ'ה ציציאשווילי", note: "גוצ'ה הוא מתאבק (אלוף עולם!), בעוד השאר הם אנשי קולנוע." },
+        { q: "מי מבין המדינות הבאות היא יוצאת דופן?", a: ["לבנון", "דנמרק", "צ'כיה"], correct: "דנמרק", note: "דנמרק היא המדינה היחידה ברשימה שאין בה אתרי סקי (שטוחה מדי)." }
+    ];
+
+    let currentQuestions = [];
+    let questionIndex = 0;
+    let score = 0;
+    let timerInterval;
+    let timeLeft;
+    const TIME_LIMIT = 7;
+
+    function startGame() {
+        currentQuestions = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 6);
+        questionIndex = 0;
+        score = 0;
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        document.getElementById('result-screen').classList.add('hidden');
+        showQuestion();
+    }
+
+    function showQuestion() {
+        if (questionIndex >= currentQuestions.length) {
+            return showResult();
+        }
+
+        const qData = currentQuestions[questionIndex];
+        document.getElementById('current-q-num').innerText = questionIndex + 1;
+        document.getElementById('question-text').innerText = qData.q;
+        document.getElementById('explanation-text').style.display = 'none';
+        
+        const container = document.getElementById('answers-container');
+        container.innerHTML = '';
+
+        const shuffledAnswers = [...qData.a].sort(() => 0.5 - Math.random());
+        shuffledAnswers.forEach((ans) => {
+            const btn = document.createElement('button');
+            btn.className = 'btn answer-btn';
+            btn.innerText = ans;
+            btn.onclick = () => handleAnswer(ans, qData.correct, btn, qData.note);
+            container.appendChild(btn);
+        });
+
+        startTimer();
+    }
+
+    function startTimer() {
+        timeLeft = TIME_LIMIT;
+        const bar = document.getElementById('timer-bar');
+        bar.style.width = "100%";
+        
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timeLeft -= 0.1;
+            const percentage = (timeLeft / TIME_LIMIT) * 100;
+            bar.style.width = percentage + "%";
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                handleAnswer(null, currentQuestions[questionIndex].correct, null, "נגמר הזמן! " + currentQuestions[questionIndex].note);
+            }
+        }, 100);
+    }
+
+    function handleAnswer(selectedText, correctText, btn, note) {
+        clearInterval(timerInterval);
+        const buttons = document.querySelectorAll('.answer-btn');
+        buttons.forEach(b => b.style.pointerEvents = 'none');
+
+        const expDiv = document.getElementById('explanation-text');
+        expDiv.innerText = note;
+        expDiv.style.display = 'block';
+
+        if (selectedText === correctText) {
+            if(btn) btn.classList.add('correct');
+            score += 3;
+        } else {
+            if (btn) btn.classList.add('wrong');
+            buttons.forEach(b => {
+                if (b.innerText === correctText) b.classList.add('correct');
+            });
+            score -= 1;
+        }
+
+        document.getElementById('score-display').innerText = "ניקוד: " + score;
+
+        setTimeout(() => {
+            questionIndex++;
+            showQuestion();
+        }, 3500);
+    }
+
+    function showResult() {
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        const msg = document.getElementById('final-message');
+        msg.innerText = score >= 10 ? "תותחים! עמדתם בלחץ!" : "לא נורא, אולי בפעם הבאה תהיו מהירים יותר.";
+        document.getElementById('final-score').innerText = "הניקוד הסופי: " + score;
+    }
+
+    // הוספת המאזין לכפתור ההתחלה לאחר טעינת הדף
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('start-btn-id').addEventListener('click', startGame);
+    });
+</script>
+
+</body>
+</html>
