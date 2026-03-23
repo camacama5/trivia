@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק הטריוויה - גרסת הלחץ!</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        #game-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 90%; max-width: 550px; text-align: center; position: relative; overflow: hidden; }
+        h1 { color: #333; margin-bottom: 20px; }
+        .btn { border: none; padding: 15px 25px; font-size: 18px; border-radius: 12px; cursor: pointer; transition: 0.3s; width: 100%; margin: 10px 0; font-weight: bold; }
+        .start-btn { background: #4a90e2; color: white; padding: 25px; font-size: 22px; }
+        .answer-btn { background: #f8f9fa; color: #333; border: 2px solid #e9ecef; }
+        .answer-btn:hover { background: #e9ecef; }
+        .answer-btn.correct { background: #2980b9 !important; color: white; border-color: #2980b9; }
+        .answer-btn.wrong { background: #e74c3c !important; color: white; border-color: #e74c3c; }
+        #score-display { font-size: 20px; margin-bottom: 15px; font-weight: bold; color: #555; background: #eee; padding: 10px; border-radius: 10px; }
+        #question-text { font-size: 24px; margin-bottom: 20px; font-weight: bold; color: #2c3e50; min-height: 70px; }
+        #explanation-text { font-size: 18px; color: #2c3e50; background: #eef2f7; padding: 15px; border-radius: 10px; margin-top: 15px; display: none; border-right: 5px solid #2980b9; line-height: 1.5; }
+        .hidden { display: none; }
+        #progress-info { font-size: 14px; color: #888; margin-bottom: 5px; }
+        
+        /* עיצוב הטיימר */
+        #timer-container { width: 100%; height: 8px; background: #eee; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+        #timer-bar { width: 100%; height: 100%; background: #e74c3c; transition: width 0.1s linear; }
+    </style>
+</head>
+<body>
+
+<div id="game-card">
+    <div id="start-screen">
+        <h1>מוכנים ללחץ?</h1>
+        <p>יש לכם 7 שניות לכל שאלה!</p>
+        <button class="btn start-btn" onclick="startGame()">התחל את המשחק!</button>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+        <div id="progress-info">שאלה <span id="current-q-num">1</span> מתוך 6</div>
+        <div id="timer-container"><div id="timer-bar"></div></div>
+        <div id="score-display">ניקוד: 0</div>
+        <div id="question-text"></div>
+        <div id="answers-container"></div>
+        <div id="explanation-text"></div>
+    </div>
+
+    <div id="result-screen" class="hidden">
+        <h2 id="final-message"></h2>
+        <div id="final-score" style="font-size: 28px; margin: 20px 0; font-weight: bold; color: #2c3e50;"></div>
+        <button class="btn start-
